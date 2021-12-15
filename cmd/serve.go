@@ -2,15 +2,18 @@ package cmd
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/timeout"
 	"github.com/spf13/cobra"
 	"log"
 	"proxy/internal/proxy/http"
+	"time"
 )
 
 var (
 	host          string
 	listen        string
 	setFromConfig bool
+	proxyTimeout  time.Duration
 )
 
 var serveHTTPCMD = &cobra.Command{
@@ -26,11 +29,11 @@ var serveHTTPCMD = &cobra.Command{
 			SetHostFromConfig: setFromConfig,
 		})
 
-		app.All("*", func(ctx *fiber.Ctx) error {
+		app.All("*", timeout.New(func(ctx *fiber.Ctx) error {
 			request := ctx.Request()
 			response := ctx.Response()
 			return proxy.Proxy(request, response)
-		})
+		}, proxyTimeout))
 
 		log.Fatalln(app.Listen(listen))
 	},
@@ -42,4 +45,5 @@ func init() {
 	serveHTTPCMD.PersistentFlags().StringVar(&host, "set-host", "", "localhost")
 	serveHTTPCMD.PersistentFlags().StringVarP(&listen, "listen", "l", ":33413", "localhost")
 	serveHTTPCMD.PersistentFlags().BoolVar(&setFromConfig, "set-from-config", true, "localhost")
+	serveHTTPCMD.PersistentFlags().DurationVar(&proxyTimeout, "proxy-timeout", time.Second*10, "10m")
 }
