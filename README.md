@@ -1,6 +1,6 @@
 # Proxy
 
-It is simple proxy to work tcp connection
+It is simple proxy to work with tcp connection
 
 - [x] HTTP
 - [ ] TCP
