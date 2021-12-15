@@ -3,7 +3,7 @@ package cmd
 import "github.com/spf13/cobra"
 
 var root = &cobra.Command{
-	Use:   "proxyd",
+	Use:   "proxy",
 	Short: "Go based HTTP Proxy",
 }
 
