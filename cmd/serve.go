@@ -9,6 +9,7 @@ import (
 
 var (
 	host          string
+	listen        string
 	setFromConfig bool
 )
 
@@ -31,7 +32,7 @@ var serveHTTPCMD = &cobra.Command{
 			return proxy.Proxy(request, response)
 		})
 
-		log.Fatalln(app.Listen(":33413"))
+		log.Fatalln(app.Listen(listen))
 	},
 }
 
@@ -39,5 +40,6 @@ func init() {
 	root.AddCommand(serveHTTPCMD)
 
 	serveHTTPCMD.PersistentFlags().StringVar(&host, "set-host", "", "localhost")
+	serveHTTPCMD.PersistentFlags().StringVarP(&listen, "listen", "l", ":33413", "localhost")
 	serveHTTPCMD.PersistentFlags().BoolVar(&setFromConfig, "set-from-config", true, "localhost")
 }
