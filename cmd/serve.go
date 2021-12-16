@@ -14,6 +14,7 @@ var (
 	listen        string
 	setFromConfig bool
 	proxyTimeout  time.Duration
+	local         bool
 )
 
 var serveHTTPCMD = &cobra.Command{
@@ -24,10 +25,18 @@ var serveHTTPCMD = &cobra.Command{
 			DisableStartupMessage: true,
 		})
 
-		proxy := http.New(verbose, http.Config{
+		config := http.Config{
 			Host:              host,
 			SetHostFromConfig: setFromConfig,
-		})
+		}
+
+		if local {
+			config.Schema = "http"
+		} else {
+			config.Schema = "https"
+		}
+
+		proxy := http.New(verbose, config)
 
 		app.All("*", timeout.New(func(ctx *fiber.Ctx) error {
 			request := ctx.Request()
@@ -43,6 +52,7 @@ func init() {
 	root.AddCommand(serveHTTPCMD)
 
 	serveHTTPCMD.PersistentFlags().StringVar(&host, "set-host", "", "localhost")
+	serveHTTPCMD.PersistentFlags().BoolVarP(&local, "local", "d", false, "")
 	serveHTTPCMD.PersistentFlags().StringVarP(&listen, "listen", "l", ":33413", "localhost")
 	serveHTTPCMD.PersistentFlags().BoolVar(&setFromConfig, "set-from-config", true, "localhost")
 	serveHTTPCMD.PersistentFlags().DurationVar(&proxyTimeout, "proxy-timeout", time.Second*10, "10m")
