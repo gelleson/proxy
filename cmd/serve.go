@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/timeout"
 	"github.com/spf13/cobra"
 	"log"
 	"proxy/internal/proxy/http"
@@ -38,11 +38,12 @@ var serveHTTPCMD = &cobra.Command{
 
 		proxy := http.New(verbose, config)
 
-		app.All("*", timeout.New(func(ctx *fiber.Ctx) error {
+		app.All("*", func(ctx *fiber.Ctx) error {
 			request := ctx.Request()
 			response := ctx.Response()
+			fmt.Println(fmt.Sprintf("%s => %s", request.Header.Method(), request.URI().RequestURI()))
 			return proxy.Proxy(request, response)
-		}, proxyTimeout))
+		})
 
 		log.Fatalln(app.Listen(listen))
 	},
